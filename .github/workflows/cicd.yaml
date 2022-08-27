@@ -5,6 +5,8 @@ jobs:
   aws_auth:
     runs-on: ubuntu-latest
     steps:
+      - name: Print secret length
+        run: echo ${{ secrets.AWS_ROLE }} | awk '{print length}'
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
