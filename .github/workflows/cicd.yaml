@@ -10,14 +10,18 @@ jobs:
     steps:
       - name: Print secret length
         run: echo ${{ secrets.AWS_ROLE }} | awk '{print length}'
+      - uses: actions/checkout@v2
+      
+      # For authenticating Github to AWS with OpenID Connect
+      # https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+
+      # https://github.com/aws-actions/configure-aws-credentials
       - uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: us-east-1
-      # - uses: actions/checkout@v2
-      # - uses: docker-practice/actions-setup-docker@master
-      # - run: docker version
-      # - run: docker build -t nginx:latest .
+
+      # https://github.com/aws-actions/amazon-ecr-login
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -27,6 +31,5 @@ jobs:
           REPOSITORY: nginx
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "image=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
-          # docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-          # docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
+          docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
